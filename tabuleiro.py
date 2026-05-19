@@ -6,6 +6,8 @@ import sys
 import ctypes
 import os
 
+from pecas import *
+
 def add_tile(x, z, size, color, h=0.90, ybase=0.0):
     x0, x1 = x, x + size
     y0, y1 = ybase, ybase + h
@@ -70,6 +72,48 @@ def build_grid():
         for col in range(GRID):
             color = LIGHT if (row + col) % 2 == 0 else DARK
             data += add_tile(col - offset, row - offset, SIZE, color, h=0.9, ybase=0.0)
+
+        # adicionar cubos sobre o tabuleiro
+        # cubo 1
+        data += centralizar_cubo(2, 2, 0.6, (1.0, 0.2, 0.2))
+
+        # cubo 2
+        data += centralizar_cubo(3, -1, 0.6, (1.0, 0.2, 0.2))
+
+        # cubo 3
+        data += centralizar_cubo(1, -3, 0.6, (1.0, 0.2, 0.2))
+
+        # paralelepipedo
+        data += add_paralelepipedo(4.5,
+                                   0.0,
+                                   -3.0,
+                                   2.5,
+                                   0.6,
+                                   6,
+                                   (0.35, 0.35, 0.35))
+        
+        # adicionando esferas sobre o tabuleiro
+        # esfera 1
+        data += add_esfera(-2.5,
+                           1.2,
+                           2.5,
+                           0.35,
+                           (0.2, 1.0, 0.2))
+        
+        # esfera 1
+        data += add_esfera(-1.5,
+                           1.2,
+                           -.5,
+                           0.35,
+                           (0.2, 1.0, 0.2))
+        
+        # esfera 3
+        data += add_esfera(-3.5,
+                           1.2,
+                           -3.5,
+                           0.35,
+                           (0.2, 1.0, 0.2))
+        
     return np.array(data, dtype=np.float32)
 
 class Tabuleiro:
