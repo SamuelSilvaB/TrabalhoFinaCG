@@ -52,7 +52,6 @@ def tela_para_casa(mouse_x, mouse_y):
     return linha, coluna
 
 def init():
-    # Documentar depos
     global tabuleiro, shaderId, locations
     glEnable(GL_MULTISAMPLE)
     glEnable(GL_DEPTH_TEST)
@@ -159,9 +158,9 @@ def mouseClick(window, button, action, mods):
     linha, coluna = casa
     print(f"Clicou em ({linha}, {coluna})")
 
-    # Caso 1: Já existe uma peça selecionada
+    # caso que já existe uma peça selecionada
     if peca_selecionada is not None:
-        # Clicou na mesma peça -> cancela seleção
+        # Clicou na mesma peça, cancela seleção
         if peca_selecionada.linha == linha and peca_selecionada.coluna == coluna:
             peca_selecionada = None
             tabuleiro.peca_selecionada = None
@@ -169,7 +168,7 @@ def mouseClick(window, button, action, mods):
             print("Seleção cancelada")
             return
 
-        # Se a peça já moveu e ainda não atacou, força modo ataque
+        # Se a peça já moveu e ainda não atacou, ativa o modo ataque
         if peca_selecionada.movido and not peca_selecionada.atacou:
             tabuleiro.modo_ataque = True
 
@@ -182,7 +181,6 @@ def mouseClick(window, button, action, mods):
                 print("Ataque inválido (fora do alcance ou alvo inválido).")
             return
 
-        # --- Tentativa de MOVIMENTO ---
         if not peca_selecionada.movido:
             if tabuleiro.mover_peca(peca_selecionada, linha, coluna):
                 print("Movimento realizado!")
@@ -192,7 +190,7 @@ def mouseClick(window, button, action, mods):
                     tabuleiro.modo_ataque = True
                     print("Agora você pode atacar com esta peça!")
                 else:
-                    # Sem alvos, turno termina após movimento
+                    # Sem alvos o turno termina após movimento
                     print("Nenhum inimigo ao alcance. Turno encerrado.")
                     finalizar_turno()
             else:
@@ -201,7 +199,6 @@ def mouseClick(window, button, action, mods):
             print("Esta peça já se moveu neste turno. Use modo ataque (Espaço) para atacar.")
         return
 
-    # Caso 2: Nenhuma peça selecionada -> tentar selecionar peça do jogador atual que ainda não agiu
     peca = tabuleiro.obter_peca(linha, coluna)
     if peca is not None and peca.jogador == turno % 2:
         if peca.atacou:

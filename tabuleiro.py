@@ -94,7 +94,7 @@ class Tabuleiro:
             peca.tempo_animacao += dt
             t = peca.tempo_animacao / peca.duracao_animacao
             t = min(t, 1.0)
-            t = t * t * (3 - 2 * t)   # easing
+            t = t * t * (3 - 2 * t)   
             if t >= 1.0:
                 t = 1.0
                 peca.animando = False
@@ -161,12 +161,12 @@ class Tabuleiro:
         return True
 
     def render(self):
-        # Desenha o grid estático
+        # Desenhando o grid estático
         glBindVertexArray(self.vaoId)
         glDrawArrays(GL_TRIANGLES, 0, self.qtdVertices)
         glBindVertexArray(0)
 
-        # Desenha peças e auras (dinâmico)
+        # Desenhando peças e auras (dinâmico)
         vertices = gerar_vertices_pecas(self)
         vao = glGenVertexArrays(1)
         vbo = glGenBuffers(1)
