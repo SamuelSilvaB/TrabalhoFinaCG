@@ -5,13 +5,13 @@ import ctypes
 import math
 
 from pecas import Peca
-from utils import lerp
+from utils import lerp, carregar_textura
 from renderizacao import build_grid, gerar_vertices_pecas
 
 class Tabuleiro:
     def __init__(self):
         vertices = build_grid()
-        self.qtdVertices = len(vertices) // 6
+        self.qtdVertices = len(vertices) // 8
 
         self.casas = [[None for _ in range(8)] for _ in range(8)]
         self.pecas = []
@@ -26,6 +26,8 @@ class Tabuleiro:
         self.peca_selecionada = None
         self.modo_ataque = False
 
+        self.textura_piso = carregar_textura("woodfloor2.jpg")
+
         # Configurar VAO/VBO para o grid (estático)
         self.vaoId = glGenVertexArrays(1)
         glBindVertexArray(self.vaoId)
@@ -34,11 +36,13 @@ class Tabuleiro:
         glBindBuffer(GL_ARRAY_BUFFER, self.vboId)
         glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
 
-        stride = 6 * 4
-        glEnableVertexAttribArray(0)
+        stride = 8 * 4
+        glEnableVertexAttribArray(0) # Posiçao 0
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, ctypes.c_void_p(0))
-        glEnableVertexAttribArray(1)
+        glEnableVertexAttribArray(1) # Cor 1
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, ctypes.c_void_p(12))
+        glEnableVertexAttribArray(2) # Textura UV 2
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, ctypes.c_void_p(24))
 
         glBindVertexArray(0)
 
@@ -161,10 +165,17 @@ class Tabuleiro:
         return True
 
     def render(self):
+        # Textura Carregada
+        glActiveTexture(GL_TEXTURE0)
+        glBindTexture(GL_TEXTURE_2D, self.textura_piso)
+
         # Desenhando o grid estático
         glBindVertexArray(self.vaoId)
         glDrawArrays(GL_TRIANGLES, 0, self.qtdVertices)
         glBindVertexArray(0)
+
+        # Desvincula a textura para não afetar as peças dinâmicas
+        glBindTexture(GL_TEXTURE_2D, 0)
 
         # Desenhando peças e auras (dinâmico)
         vertices = gerar_vertices_pecas(self)

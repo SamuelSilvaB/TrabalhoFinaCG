@@ -6,14 +6,16 @@ def build_grid():
     GRID = 8
     LIGHT = (0.78, 0.86, 0.90)
     DARK = (0.38, 0.52, 0.60)
-    PISO_COR = (0.1, 0.1, 0.1)
+    PISO_COR = (0.3, 0.3, 0.3)
 
     data = []
     offset = GRID / 2
     piso_tamanho = GRID * SIZE + 25.0
 
-    data += add_tile(-piso_tamanho / 2, -piso_tamanho / 2, piso_tamanho, PISO_COR, h=0.1, ybase=-0.5)
+    # Piso
+    data += add_tile(-piso_tamanho / 2, -piso_tamanho / 2, piso_tamanho, PISO_COR, h=0.1, ybase=-0.5, com_textura=True)
 
+    # Tabuleiro
     for row in range(GRID):
         for col in range(GRID):
             color = LIGHT if (row + col) % 2 == 0 else DARK

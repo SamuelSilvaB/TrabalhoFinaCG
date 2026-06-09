@@ -150,7 +150,7 @@ def add_aura(cx, cz, raio=0.45, y=0.92, cor=(1.0, 1.0, 0.0), segmentos=32):
         ]
     return vertices
 
-def add_tile(x, z, size, color, h=0.90, ybase=0.0):
+def add_tile(x, z, size, color, h=0.90, ybase=0.0, com_textura=False):
     x0, x1 = x, x + size
     y0, y1 = ybase, ybase + h
     z0, z1 = z, z + size
@@ -161,36 +161,47 @@ def add_tile(x, z, size, color, h=0.90, ybase=0.0):
     tr, tg, tb = top
     sr, sg, sb = side
 
+    # Mágica: Se for 'com_textura=True', passamos as coordenadas normais.
+    # Se for 'False', passamos tudo 0.0 (o que avisa o shader para pintar cor sólida).
+    u_esq, v_cim = (0.0, 1.0) if com_textura else (0.0, 0.0)
+    u_dir, v_cim = (1.0, 1.0) if com_textura else (0.0, 0.0)
+    u_dir, v_bai = (1.0, 0.0) if com_textura else (0.0, 0.0)
+    u_esq, v_bai = (0.0, 0.0)
+
     return [
-        x0, y1, z0, tr, tg, tb,
-        x1, y1, z0, tr, tg, tb,
-        x1, y1, z1, tr, tg, tb,
-        x0, y1, z0, tr, tg, tb,
-        x1, y1, z1, tr, tg, tb,
-        x0, y1, z1, tr, tg, tb,
-        # demais faces...
-        x0, y0, z1, sr, sg, sb,
-        x1, y0, z1, sr, sg, sb,
-        x1, y1, z1, sr, sg, sb,
-        x0, y0, z1, sr, sg, sb,
-        x1, y1, z1, sr, sg, sb,
-        x0, y1, z1, sr, sg, sb,
-        x1, y0, z0, sr, sg, sb,
-        x1, y0, z1, sr, sg, sb,
-        x1, y1, z1, sr, sg, sb,
-        x1, y0, z0, sr, sg, sb,
-        x1, y1, z1, sr, sg, sb,
-        x1, y1, z0, sr, sg, sb,
-        x0, y0, z1, sr, sg, sb,
-        x0, y0, z0, sr, sg, sb,
-        x0, y1, z0, sr, sg, sb,
-        x0, y0, z1, sr, sg, sb,
-        x0, y1, z0, sr, sg, sb,
-        x0, y1, z1, sr, sg, sb,
-        x1, y0, z0, sr, sg, sb,
-        x0, y0, z0, sr, sg, sb,
-        x0, y1, z0, sr, sg, sb,
-        x1, y0, z0, sr, sg, sb,
-        x0, y1, z0, sr, sg, sb,
-        x1, y1, z0, sr, sg, sb,
+        # Topo
+        x0, y1, z0, tr, tg, tb, u_esq, v_cim,
+        x1, y1, z0, tr, tg, tb, u_dir, v_cim,
+        x1, y1, z1, tr, tg, tb, u_dir, v_bai,
+        x0, y1, z0, tr, tg, tb, u_esq, v_cim,
+        x1, y1, z1, tr, tg, tb, u_dir, v_bai,
+        x0, y1, z1, tr, tg, tb, u_esq, v_bai,
+        # Frente
+        x0, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z1, sr, sg, sb, 0.0, 0.0,
+        x0, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z1, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z1, sr, sg, sb, 0.0, 0.0,
+        # Direita
+        x1, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x1, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z0, sr, sg, sb, 0.0, 0.0,
+        # Esquerda
+        x0, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x0, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z1, sr, sg, sb, 0.0, 0.0,
+        # Trás
+        x1, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z0, sr, sg, sb, 0.0, 0.0,
+        x1, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z0, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z0, sr, sg, sb, 0.0, 0.0
     ]
