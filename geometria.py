@@ -57,54 +57,81 @@ def centralizar_cubo(tile_x, tile_z, cube_size, color, y=0.9):
     z = tile_z + (1.0 - cube_size) / 2
     return add_cube(x, y, z, cube_size, color)
 
-def add_paralelepipedo(x, y, z, largura, altura, profundidade, cor):
+def add_paralelepipedo(
+    x,
+    y,
+    z,
+    largura,
+    altura,
+    profundidade,
+    cor
+):
+
     x0, x1 = x, x + largura
     y0, y1 = y, y + altura
     z0, z1 = z, z + profundidade
 
     r, g, b = cor
-    top = (min(r + 0.08, 1.0), min(g + 0.08, 1.0), min(b + 0.08, 1.0))
-    side = (r * 0.72, g * 0.72, b * 0.72)
+
+    top = (
+        min(r + 0.08, 1.0),
+        min(g + 0.08, 1.0),
+        min(b + 0.08, 1.0)
+    )
+
+    side = (
+        r * 0.72,
+        g * 0.72,
+        b * 0.72
+    )
+
     tr, tg, tb = top
     sr, sg, sb = side
 
-    return [
-        # top
-        x0, y1, z0, tr, tg, tb,
-        x1, y1, z0, tr, tg, tb,
-        x1, y1, z1, tr, tg, tb,
-        x0, y1, z0, tr, tg, tb,
-        x1, y1, z1, tr, tg, tb,
-        x0, y1, z1, tr, tg, tb,
-        # side -Z
-        x0, y0, z1, sr, sg, sb,
-        x1, y0, z1, sr, sg, sb,
-        x1, y1, z1, sr, sg, sb,
-        x0, y0, z1, sr, sg, sb,
-        x1, y1, z1, sr, sg, sb,
-        x0, y1, z1, sr, sg, sb,
-        # side +X
-        x1, y0, z0, sr, sg, sb,
-        x1, y0, z1, sr, sg, sb,
-        x1, y1, z1, sr, sg, sb,
-        x1, y0, z0, sr, sg, sb,
-        x1, y1, z1, sr, sg, sb,
-        x1, y1, z0, sr, sg, sb,
-        # side -X
-        x0, y0, z1, sr, sg, sb,
-        x0, y0, z0, sr, sg, sb,
-        x0, y1, z0, sr, sg, sb,
-        x0, y0, z1, sr, sg, sb,
-        x0, y1, z0, sr, sg, sb,
-        x0, y1, z1, sr, sg, sb,
-        # side +Z
-        x1, y0, z0, sr, sg, sb,
-        x0, y0, z0, sr, sg, sb,
-        x0, y1, z0, sr, sg, sb,
-        x1, y0, z0, sr, sg, sb,
-        x0, y1, z0, sr, sg, sb,
-        x1, y1, z0, sr, sg, sb,
+    vertices = [
+
+        x0, y1, z0, tr, tg, tb, 0.0, 0.0,
+        x1, y1, z0, tr, tg, tb, 0.0, 0.0,
+        x1, y1, z1, tr, tg, tb, 0.0, 0.0,
+
+        x0, y1, z0, tr, tg, tb, 0.0, 0.0,
+        x1, y1, z1, tr, tg, tb, 0.0, 0.0,
+        x0, y1, z1, tr, tg, tb, 0.0, 0.0,
+
+        x0, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z1, sr, sg, sb, 0.0, 0.0,
+
+        x0, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z1, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z1, sr, sg, sb, 0.0, 0.0,
+
+        x1, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x1, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z1, sr, sg, sb, 0.0, 0.0,
+
+        x1, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z1, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z0, sr, sg, sb, 0.0, 0.0,
+
+        x0, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x0, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z0, sr, sg, sb, 0.0, 0.0,
+
+        x0, y0, z1, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z1, sr, sg, sb, 0.0, 0.0,
+
+        x1, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z0, sr, sg, sb, 0.0, 0.0,
+
+        x1, y0, z0, sr, sg, sb, 0.0, 0.0,
+        x0, y1, z0, sr, sg, sb, 0.0, 0.0,
+        x1, y1, z0, sr, sg, sb, 0.0, 0.0,
     ]
+
+    return vertices
 
 def add_esfera(cx, cy, cz, raio, cor, setores=24, camadas=24):
     vertices = []

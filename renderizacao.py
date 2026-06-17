@@ -1,5 +1,5 @@
 import numpy as np
-from geometria import add_tile, centralizar_cubo, add_esfera, add_aura
+from geometria import add_tile, centralizar_cubo, add_esfera, add_aura, add_paralelepipedo
 
 def build_grid():
     SIZE = 1.0
@@ -21,6 +21,16 @@ def build_grid():
             color = LIGHT if (row + col) % 2 == 0 else DARK
             data += add_tile(col - offset, row - offset, SIZE, color, h=0.9, ybase=0.0)
 
+    data += add_paralelepipedo(
+        4.0,            # x
+        -0.4,           # y
+        -3,            # z
+        3.0,            # largura
+        0.7,            # altura
+        6.0,            # profundidade
+        (0.5, 0.5, 0.5) # cor
+    )
+
     return np.array(data, dtype=np.float32)
 
 def gerar_vertices_pecas(tabuleiro):
@@ -36,17 +46,51 @@ def gerar_vertices_pecas(tabuleiro):
 
     # Desenhar peças
     for peca in tabuleiro.pecas:
-        x = peca.x_visual
-        z = peca.z_visual
+        x = (
+            peca.x_visual
+            + peca.offset_dano_x
+        )
+
+        z = (
+            peca.z_visual
+            + peca.offset_dano_z
+        )
 
         # aura da peça selecionada
         if peca == tabuleiro.peca_selecionada:
             vertices += add_aura(x + 0.5, z + 0.5, raio=0.55, cor=(1.0, 1.0, 0.0))
 
-        if peca.tipo == "cubo":
-            vertices += centralizar_cubo(x, z, 0.6, (1.0, 0.2, 0.2), 0.9 + peca.y_visual)
-        elif peca.tipo == "esfera":
-            vertices += add_esfera(x + 0.5, 1.2 + peca.y_visual, z + 0.5, 0.35, (0.2, 1.0, 0.2))
+        # if peca.tipo == "cubo":
+        #     vertices += centralizar_cubo(x, z, 0.6, (1.0, 0.2, 0.2), 0.9 + peca.y_visual)
+        # elif peca.tipo == "esfera":
+        #     vertices += add_esfera(x + 0.5, 1.2 + peca.y_visual, z + 0.5, 0.35, (0.2, 1.0, 0.2))
+
+        if peca.tipo == "Tanque":
+            vertices += centralizar_cubo(
+                x,
+                z,
+                0.7,
+                peca.cor,
+                0.9 + peca.y_visual
+            )
+
+        elif peca.tipo == "Atirador":
+            vertices += add_esfera(
+                x + 0.5,
+                1.2 + peca.y_visual,
+                z + 0.5,
+                0.35,
+                peca.cor
+            )
+
+        elif peca.tipo == "Batedor":
+            vertices += centralizar_cubo(
+                x,
+                z,
+                0.5,
+                peca.cor,
+                0.9 + peca.y_visual
+            )
 
     # Mostrar casas disponíveis para ataque
     if tabuleiro.modo_ataque and tabuleiro.peca_selecionada is not None:

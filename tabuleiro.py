@@ -4,7 +4,7 @@ import numpy as np
 import ctypes
 import math
 
-from pecas import Peca
+from pecas import *
 from utils import lerp, carregar_textura
 from renderizacao import build_grid, gerar_vertices_pecas
 
@@ -16,12 +16,15 @@ class Tabuleiro:
         self.casas = [[None for _ in range(8)] for _ in range(8)]
         self.pecas = []
 
-        self.adicionar_peca(Peca("cubo", 0, 6, 6))
-        self.adicionar_peca(Peca("cubo", 0, 3, 7))
-        self.adicionar_peca(Peca("cubo", 0, 1, 5))
-        self.adicionar_peca(Peca("esfera", 1, 0, 0))
-        self.adicionar_peca(Peca("esfera", 1, 3, 2))
-        self.adicionar_peca(Peca("esfera", 1, 7, 0))
+        # Jogador 1
+        self.adicionar_peca(Tanque(0, 6, 6))
+        self.adicionar_peca(Atirador(0, 3, 7))
+        self.adicionar_peca(Batedor(0, 1, 5))
+
+        # jogador 2
+        self.adicionar_peca(Tanque(1, 0, 0))
+        self.adicionar_peca(Atirador(1, 3, 2))
+        self.adicionar_peca(Batedor(1, 7, 0))
 
         self.peca_selecionada = None
         self.modo_ataque = False
@@ -92,38 +95,156 @@ class Tabuleiro:
         return casas
 
     def atualizar_animacoes(self, dt):
+
+        pecas_para_remover = []
+
         for peca in self.pecas:
-            if not peca.animando:
-                continue
-            peca.tempo_animacao += dt
-            t = peca.tempo_animacao / peca.duracao_animacao
-            t = min(t, 1.0)
-            t = t * t * (3 - 2 * t)   
-            if t >= 1.0:
-                t = 1.0
-                peca.animando = False
-            peca.x_visual = lerp(peca.x_inicial, peca.x_destino, t)
-            peca.z_visual = lerp(peca.z_inicial, peca.z_destino, t)
+
+            # -------------------
+            # Movimento
+            # -------------------
             if peca.animando:
-                peca.y_visual = math.sin(t * math.pi) * 0.5
-            else:
-                peca.y_visual = 0.0
+
+                peca.tempo_animacao += dt
+
+                t = peca.tempo_animacao / peca.duracao_animacao
+                t = min(t, 1.0)
+
+                t = t * t * (3 - 2 * t)
+
+                if t >= 1.0:
+                    t = 1.0
+                    peca.animando = False
+
+                peca.x_visual = lerp(
+                    peca.x_inicial,
+                    peca.x_destino,
+                    t
+                )
+
+                peca.z_visual = lerp(
+                    peca.z_inicial,
+                    peca.z_destino,
+                    t
+                )
+
+                if peca.animando:
+                    peca.y_visual = (
+                        math.sin(t * math.pi)
+                        * 0.5
+                    )
+                else:
+                    peca.y_visual = 0.0
+
+            # -------------------
+            # Dano
+            # -------------------
+            if peca.recebendo_dano:
+
+                peca.tempo_dano += dt
+
+                if peca.tempo_dano >= peca.duracao_dano:
+
+                    peca.recebendo_dano = False
+
+                    peca.offset_dano_x = 0.0
+                    peca.offset_dano_z = 0.0
+
+                    if peca.morta:
+                        pecas_para_remover.append(peca)
+
+                else:
+
+                    intensidade = 0.08
+
+                    if int(peca.tempo_dano * 50) % 2 == 0:
+                        peca.offset_dano_x = intensidade
+                    else:
+                        peca.offset_dano_x = -intensidade
+
+                    peca.offset_dano_z = 0.0
+
+        # -------------------
+        # Remove peças mortas
+        # -------------------
+        for peca in pecas_para_remover:
+
+            if peca in self.pecas:
+
+                self.casas[
+                    peca.linha
+                ][
+                    peca.coluna
+                ] = None
+
+                self.pecas.remove(peca)
+
+                print(f"{peca.tipo} removida do jogo")
 
     def atacar(self, atacante, linha, coluna):
-        alvo = self.obter_peca(linha, coluna)
+
+        alvo = self.obter_peca(
+            linha,
+            coluna
+        )
+
         if atacante.atacou:
-            print("Esta peça já atacou neste turno!")
+            print(
+                "Esta peça já atacou neste turno!"
+            )
             return False
 
-        if alvo is None or alvo.jogador == atacante.jogador:
+        if alvo is None:
             return False
-        distancia = abs(linha - atacante.linha) + abs(coluna - atacante.coluna)
+
+        if alvo.morta:
+            return False
+
+        if alvo.jogador == atacante.jogador:
+            return False
+
+        distancia = (
+            abs(linha - atacante.linha)
+            +
+            abs(coluna - atacante.coluna)
+        )
+
+        if distancia == 0:
+            return False
+
         if distancia > atacante.alcance_do_ataque:
             return False
-        self.pecas.remove(alvo)
-        self.casas[alvo.linha][alvo.coluna] = None
-        print(f"{atacante.tipo} atacou {alvo.tipo}")
+
+        alvo.vida -= atacante.dano
+
+        print(
+            f"{alvo.tipo} recebeu "
+            f"{atacante.dano} de dano"
+        )
+
+        print(
+            f"Vida restante: "
+            f"{alvo.vida}"
+        )
+
+        alvo.recebendo_dano = True
+        alvo.tempo_dano = 0.0
+
+        if alvo.vida <= 0:
+
+            alvo.morta = True
+
+            print(
+                f"{alvo.tipo} será destruído"
+            )
+
+        print(
+            f"{atacante.tipo} atacou "
+            f"{alvo.tipo}"
+        )
+
         atacante.atacou = True
+
         return True
 
     def remover_peca(self, peca):
