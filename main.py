@@ -74,6 +74,13 @@ def init():
     locations['modelMatrix'] = glGetUniformLocation(shaderId, 'modelMatrix')
     locations['uMVP'] = glGetUniformLocation(shaderId, 'uMVP')
 
+    # NOVAS LOCATIONS PARA A LUZ
+    locations['lightPos'] = glGetUniformLocation(shaderId, 'lightPos')
+    locations['lightDir'] = glGetUniformLocation(shaderId, 'lightDir')
+    locations['cutOff'] = glGetUniformLocation(shaderId, 'cutOff')
+    locations['outerCutOff'] = glGetUniformLocation(shaderId, 'outerCutOff')
+    locations['ambientLight'] = glGetUniformLocation(shaderId, 'ambientLight')
+
 def render():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     global projMatrix, viewMatrix
@@ -95,10 +102,20 @@ def render():
         glUniformMatrix4fv(locations['viewMatrix'], 1, GL_FALSE, glm.value_ptr(viewMatrix))
         glUniformMatrix4fv(locations['modelMatrix'], 1, GL_FALSE, glm.value_ptr(modelMatrix))
 
-    if locations.get('uMVP') != -1:
-        mvp = projMatrix * viewMatrix * modelMatrix
-        glUniformMatrix4fv(locations['uMVP'], 1, GL_FALSE, glm.value_ptr(mvp))
+    # ENVIA MATRIZ DIRETAMENTE
+    mvp = projMatrix * viewMatrix * modelMatrix
+    glUniformMatrix4fv(glGetUniformLocation(shaderId, 'uMVP'), 1, GL_FALSE, glm.value_ptr(mvp))
+    glUniformMatrix4fv(glGetUniformLocation(shaderId, 'modelMatrix'), 1, GL_FALSE, glm.value_ptr(modelMatrix))
 
+    # LIGAR A LUZ
+    glUniform3f(glGetUniformLocation(shaderId, 'lightPos'), 0.0, 8.0, 0.0) 
+    glUniform3f(glGetUniformLocation(shaderId, 'lightDir'), 0.0, -1.0, 0.0) 
+    glUniform1f(glGetUniformLocation(shaderId, 'cutOff'), math.cos(math.radians(35.0)))
+    glUniform1f(glGetUniformLocation(shaderId, 'outerCutOff'), math.cos(math.radians(45.0)))
+    glUniform3f(glGetUniformLocation(shaderId, 'ambientLight'), 0.3, 0.3, 0.3)
+    # glUniform3f(glGetUniformLocation(shaderId, 'ambientLight'), 1.0, 1.0, 1.0)
+    glUniform3f(glGetUniformLocation(shaderId, 'lightColor'), 1.0, 1.0, 1.0)
+    
     tabuleiro.render()
     glUseProgram(0)
 
