@@ -1,5 +1,7 @@
 import math
 from OpenGL.GL import *
+import trimesh
+import numpy as np
 
 def add_cube(x, y, z, size, color):
     x0, x1 = x, x + size
@@ -232,3 +234,53 @@ def add_tile(x, z, size, color, h=0.90, ybase=0.0, com_textura=False):
         x0, y1, z0, sr, sg, sb, 0.0, 0.0,
         x1, y1, z0, sr, sg, sb, 0.0, 0.0
     ]
+
+def carregar_modelo_base(caminho, escala=1.0):
+    try: 
+        cena = trimesh.load(caminho, force='mesh')
+
+        vertices_triangulados = cena.vertices[cena.faces].reshape(-1, 3)
+
+        return (vertices_triangulados * escala).astype(np.float32)
+    except Exception as e:
+        print(f"Erro ao carregar modelo {caminho}:{e}")
+        return np.array([], dtype=np.float32)
+
+def add_modelo(vertices_base, cx, cy, cz, cor, angulo_y=0.0):
+    # r, g, b = cor
+    # dados = []
+
+    # cos_a = math.cos(angulo_y)
+    # sin_a = math.sin(angulo_y)
+
+    # for v in vertices_base:
+    #     x_rot = v[0] * cos_a - v[2] * sin_a
+    #     z_rot = v[0] * sin_a + v[2] * cos_a
+
+    #     dados.extend([
+    #         x_rot + cx,
+    #         v[1] + cy,
+    #         z_rot + cz,
+    #         r, g, b,
+    #     ])
+    # return dados
+    if len(vertices_base) == 0:
+        return []
+    
+    cos_a = math.cos(angulo_y)
+    sin_a = math.sin(angulo_y)
+
+    v = vertices_base.copy()
+
+    x_rot = v[:, 0] * cos_a - v[:, 2] * sin_a
+    z_rot = v[:, 0] * sin_a + v[:, 2] * cos_a
+
+    v[:, 0] = x_rot + cx
+    v[:, 1] = v[:, 1] + cy
+    v[:, 2] = z_rot + cz
+
+    cores = np.full((v.shape[0], 3), cor, dtype=np.float32)
+
+    resultado = np.hstack((v, cores))
+
+    return resultado.flatten().tolist()

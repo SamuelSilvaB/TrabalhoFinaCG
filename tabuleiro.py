@@ -7,6 +7,7 @@ import math
 from pecas import *
 from utils import lerp, carregar_textura
 from renderizacao import build_grid, gerar_vertices_pecas
+from geometria import carregar_modelo_base
 
 class Tabuleiro:
     def __init__(self):
@@ -30,6 +31,10 @@ class Tabuleiro:
         self.modo_ataque = False
 
         self.textura_piso = carregar_textura("woodfloor2.jpg")
+
+        print("Carregando os modelos 3D...")
+        self.modelo_soldado = carregar_modelo_base("soldado.glb", escala = 30.0)
+        self.modelo_robo = carregar_modelo_base("robozurg.glb", escala = 0.02)
 
         # Configurar VAO/VBO para o grid (estático)
         self.vaoId = glGenVertexArrays(1)

@@ -1,5 +1,6 @@
 import numpy as np
-from geometria import add_tile, centralizar_cubo, add_esfera, add_aura, add_paralelepipedo
+import math
+from geometria import add_tile, centralizar_cubo, add_esfera, add_aura, add_paralelepipedo, add_modelo
 
 def build_grid():
     SIZE = 1.0
@@ -73,14 +74,26 @@ def gerar_vertices_pecas(tabuleiro):
                 peca.cor,
                 0.9 + peca.y_visual
             )
-
+        
+        # elif peca.tipo == "Atirador":
+        #     vertices += add_esfera(
+        #         x + 0.5,
+        #         1.2 + peca.y_visual,
+        #         z + 0.5,
+        #         0.35,
+        #         peca.cor
+        #     )
         elif peca.tipo == "Atirador":
-            vertices += add_esfera(
+            angulo = math.radians(90) if peca.jogador == 0 else math.radians(-90)
+
+            vertices += add_modelo(
+                tabuleiro.modelo_soldado,
                 x + 0.5,
-                1.2 + peca.y_visual,
+                0.9 + peca.y_visual,
                 z + 0.5,
-                0.35,
-                peca.cor
+                # 0.35,
+                peca.cor,
+                angulo_y = angulo
             )
 
         elif peca.tipo == "Batedor":
